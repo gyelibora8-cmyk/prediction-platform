@@ -5,7 +5,7 @@
 - Node.js 16+ and npm/yarn
 - PostgreSQL 12+
 - Git
-- Stripe account (for payments)
+- Paystack account (for payments)
 
 ## Environment Variables
 
@@ -28,9 +28,9 @@ JWT_SECRET=your_jwt_secret_key
 JWT_EXPIRE=7d
 REFRESH_TOKEN_SECRET=your_refresh_token_secret
 
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
+# Paystack
+PAYSTACK_SECRET_KEY=sk_test_...
+PAYSTACK_PUBLIC_KEY=pk_test_...
 
 # Frontend URL
 FRONTEND_URL=http://localhost:5173
@@ -40,7 +40,7 @@ FRONTEND_URL=http://localhost:5173
 
 ```
 VITE_API_URL=http://localhost:5000
-VITE_STRIPE_KEY=pk_test_...
+VITE_PAYSTACK_KEY=pk_test_...
 ```
 
 ## Installation
