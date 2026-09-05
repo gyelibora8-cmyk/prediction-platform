@@ -11,6 +11,7 @@ The Prediction Platform is built as a modern Single Page Application (SPA) with 
 - **Real-time Communication**: Socket.io for WebSocket connections
 - **HTTP Client**: Axios with interceptors for authentication
 - **UI Framework**: Tailwind CSS for styling
+- **Payment Integration**: Paystack embedded forms and redirects
 
 ### Backend Architecture
 
@@ -19,7 +20,7 @@ The Prediction Platform is built as a modern Single Page Application (SPA) with 
 - **Authentication**: JWT tokens with refresh mechanism
 - **API**: RESTful endpoints with proper status codes
 - **Real-time**: Socket.io server for live updates
-- **Payment**: Stripe API integration
+- **Payment**: Paystack API integration for secure payment processing
 
 ### Data Flow
 
@@ -33,7 +34,9 @@ The Prediction Platform is built as a modern Single Page Application (SPA) with 
 2. **Prediction Flow**:
    - User views available events
    - User makes prediction (Up/Down)
-   - User pays via Stripe
+   - User initiates payment via Paystack
+   - Paystack processes payment securely
+   - Backend verifies payment
    - Prediction stored in database
    - Real-time update via WebSocket
    - Leaderboard updated
@@ -43,6 +46,15 @@ The Prediction Platform is built as a modern Single Page Application (SPA) with 
    - Server pushes updates to all connected clients
    - Leaderboard refreshes in real-time
    - Prediction results announced instantly
+
+4. **Payment Processing with Paystack**:
+   - User clicks "Make Payment"
+   - Frontend initializes Paystack payment
+   - Backend creates payment intent via Paystack API
+   - User completes payment on Paystack checkout
+   - Paystack webhook notifies backend of payment status
+   - Backend verifies payment reference
+   - Prediction confirmed and stored
 
 ## API Endpoints
 
@@ -68,13 +80,104 @@ The Prediction Platform is built as a modern Single Page Application (SPA) with 
 - `GET /api/leaderboard/monthly` - Get monthly rankings
 - `GET /api/leaderboard/user/:userId` - Get user rank
 
-### Payments
-- `POST /api/payments/create-intent` - Create Stripe payment intent
-- `POST /api/payments/confirm` - Confirm payment
+### Payments (Paystack)
+- `POST /api/payments/initialize` - Initialize Paystack payment
+- `POST /api/payments/verify` - Verify payment reference
 - `GET /api/payments/history` - Get payment history
+- `POST /api/payments/webhook` - Paystack webhook (for server-side verification)
 
 ### Events
 - `GET /api/events` - List events
 - `GET /api/events/:id` - Get event details
 - `POST /api/events` - Create event (admin)
 - `PATCH /api/events/:id/close` - Close event (admin)
+
+## Technology Stack
+
+### Frontend Dependencies
+```
+react@18
+vite
+tailwindcss
+axios
+socket.io-client
+redux
+@paystack/inline-js
+```
+
+### Backend Dependencies
+```
+express
+postgresql
+jsonwebtoken
+dotenv
+socket.io
+paystack
+cors
+```
+
+## Security Considerations
+
+### Authentication & Authorization
+- JWT tokens with 7-day expiration
+- Refresh token mechanism for extended sessions
+- Role-based access control (user/admin)
+- Secure password hashing with bcrypt
+
+### Payment Security
+- All payments processed through Paystack
+- No direct credit card handling on backend
+- Webhook signature verification
+- Payment reference verification
+- HTTPS/TLS encryption for all transmissions
+- Environment variables for sensitive keys
+
+### API Security
+- CORS configured for frontend domain only
+- Rate limiting on payment endpoints
+- Input validation on all endpoints
+- SQL injection protection via parameterized queries
+- XSS protection via Content Security Policy headers
+
+## Database Schema
+
+### Key Tables
+- **users** - User accounts with roles
+- **events** - Prediction events
+- **predictions** - User predictions with outcomes
+- **payments** - Payment records with Paystack references
+- **leaderboard_scores** - Cached leaderboard data
+
+### Indexes
+- Email indexing for fast user lookup
+- Status indexing for filtering events and predictions
+- User ID indexing for relationship queries
+
+## Deployment Architecture
+
+### Frontend (Vercel)
+- Automatic deployments from GitHub
+- Global CDN for static assets
+- Environment-based configuration
+- Automatic HTTPS
+
+### Backend (Railway)
+- Docker containerization
+- PostgreSQL database managed by Railway
+- Environment variables in Railway dashboard
+- Automatic deployments from GitHub
+- Zero-downtime deployments
+
+### Real-time Communication
+- Socket.io connections with sticky sessions
+- Automatic reconnection handling
+- Event namespacing for different data types
+
+## Performance Optimization
+
+- Frontend code splitting with React.lazy
+- Image optimization and lazy loading
+- Database query optimization with indexes
+- Connection pooling for database
+- Caching of leaderboard data
+- Gzip compression for API responses
